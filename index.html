@@ -68,13 +68,25 @@
                 </select>
               </td>
               <td>
-                <input type="button" value="go" id="gobtn" class="startrack-btn gobtn" onclick="javascript:go();">
+                <input type="button" value="go" id="gobtn" class="gobtn" onclick="javascript:go();">
                 <div class="loader" id="loading" style="display:none"></div>
               </td>
+            </tr>
+            <tr valign="top">
+              <td>
+                <p>Repo listing file:</p>
+              </td>
+              <td>
+                <input type="file" id="file" align="left" onchange="javascript:loadRepos(this.files);"/>
+                <label align="left" for="file" />select</label>    
+              </td>                        
             </tr>
           </tbody>
         </table>
       </div>
+
+  
+
       <a href="#" class="scrollToBottom" title="Scroll to bottom">
         <img src="resources/down-circular-64.png" />
       </a>

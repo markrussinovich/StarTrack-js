@@ -1,4 +1,5 @@
 var MAX_SUPPORTED_PAGES_NO_AUTH = 30;
+var MIN_STAR_COUNT = 50;
 
 
 $(document).ready(function() {
@@ -47,6 +48,7 @@ $(document).ready(function() {
 	parseUrlParams();
 
 	initAuthDetails();
+	
 });
 
 function showPlot(data, user, repo) {
@@ -117,15 +119,6 @@ function calcStats(data) {
 		'data': numOfDays
 		});
 
-	result.push({
-		'text': 'Average stars per day',
-		'data': (data['yaxis'].length / numOfDays).toFixed(3)
-		});
-
-	result.push({
-		'text': 'Average days per star',
-		'data': (numOfDays / data['yaxis'].length).toFixed(3)
-		});
 
 	var daysWithoutStars = 0;
 	var maxStarsPerDay = 0;
@@ -158,6 +151,16 @@ function calcStats(data) {
 	}
 
 	result.push({
+		'text': 'Average stars per day',
+		'data': (data['yaxis'].length / (numOfDays - daysWithoutStars)).toFixed(3)
+		});
+
+	result.push({
+		'text': 'Average days per star',
+		'data': ((numOfDays - daysWithoutStars) / data['yaxis'].length).toFixed(3)
+		});
+		
+	result.push({
 		'text': 'Max stars in one day',
 		'data': maxStarsPerDay
 		});
@@ -180,10 +183,25 @@ function buildData(jsonData) {
 	var starCount = 0;
 	var xaxis = [];
 	var yaxis = [];
+	var firstStar = null;
 	for (key in jsonData) {
 		starCount = starCount + 1;
-		xaxis.push(jsonData[key]['starred_at']);
-		yaxis.push(starCount);
+		if( starCount > MIN_STAR_COUNT ) {
+			starredAt = Date.parse(jsonData[key]['starred_at'] );
+			if( firstStar == null ) {
+				firstStar = starredAt; 
+				starredAt = 0;
+			} else {
+				starredAt = starredAt - firstStar;
+			}
+			starredAt = Math.floor(starredAt / (1000*60*60*24));
+			if( starredAt > 30*6 ) 
+				break;
+			//xaxis.push(jsonData[key]['starred_at']);
+			starDate = starredAt;
+			xaxis.push(starredAt);
+			yaxis.push(starCount);
+		}
 	};
 
 	return {
@@ -535,6 +553,11 @@ function loadStargazers(user, repo, on_complete_callback, cur) {
 							NProgress.start();
 						}
 
+						if( cur == 100 ) {
+							done = true;
+							stopLoading();
+							return;
+						}
 						stargazersData = $.merge(stargazersData, data);
 						NProgress.inc(1/lastPage);
 					},
@@ -569,7 +592,7 @@ function loadStargazers(user, repo, on_complete_callback, cur) {
 	}
 }
 
-function loadRepos(repos) {
+function loadRepos(repos) {	
 	if (repos == undefined || repos.length == 0)
 		return;
 
@@ -618,11 +641,40 @@ function parseUrlParams() {
 function go(on_complete_callback) {
 	if ($('#user').val() == "" || $('#repo').val() == "") {
 		showMessageBox('Please enter GitHub username and GitHub repository', 'Error');
-	return;
+		return;
 	}
 
 	$('#user').val($('#user').val().trim());
 	$('#repo').val($('#repo').val().trim());
 
 	loadStargazers($('#user').val(), $('#repo').val(), on_complete_callback);
+}
+
+var curRepoLoading;
+var reposToLoad;
+
+function loadNextRepo() {
+	// load stars
+	repo = reposToLoad[curRepoLoading].split("/");
+	curRepoLoading++;
+	if( repo[0] != "" )
+		loadStargazers(repo[0], repo[1], loadNextRepo);
+}
+
+function loadRepos(file ) {
+	var reader = new FileReader();
+
+	reader.onload = (event) => {
+        const file = event.target.result;
+		reposToLoad = file.split(/\r\n|\n/);
+		curRepoLoading = 0;
+		$('#add_or_replace').val('add');
+		loadNextRepo();
+	}
+
+    reader.onerror = (event) => {
+		alert(event.target.error.name);
+    };
+
+	reader.readAsText(file[0]);
 }

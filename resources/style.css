@@ -60,7 +60,7 @@ a {
 	-webkit-border-radius: 3px;
 	-moz-border-radius: 3px;
 	border-radius: 3px;
-  color: #999;
+  	color: #999;
 	float: left;
 	font: 16px Lucida Sans, Trebuchet MS, Tahoma, sans-serif;
 	height: 52px;
@@ -109,6 +109,46 @@ a {
 	text-shadow: 0 1px 0 rgba(0, 0 ,0, .3);
 	width: 100px;
 }
+
+[type="file"] {
+	border: 0;
+	clip: rect(0, 0, 0, 0);
+	height: 1px;
+	overflow: hidden;
+	padding: 0;
+	float: right;
+	position: absolute !important;
+	white-space: nowrap;
+	vertical-align: middle;
+	width: 1px;
+  }
+   
+  [type="file"] + label {
+	-webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 1px 0 #FFF;
+	-moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 1px 0 #FFF;
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 1px 0 #FFF;
+	background-color: #0483a0;
+	border: 1px solid #00748f;
+	height: 40px;
+	cursor: pointer;
+	text-align: center;
+	vertical-align: middle;
+	font: 15px Arial, Helvetica;
+	text-transform: uppercase;
+	text-shadow: 0 1px 0 rgba(0, 0 ,0, .3);
+	width: 100px;
+	border-radius: 0;
+	color: #fafafa;
+	cursor: pointer;
+	display: inline-block;
+	padding-left: 2rem 4rem;
+  }
+	
+  [type="file"]:focus + label,
+  [type="file"] + label:hover {
+	  background-color: #31b2c3;
+  }
+	
 
 .repo-details #gobtn:hover {
 	background-color: #31b2c3;
